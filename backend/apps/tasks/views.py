@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.core.mail import send_mail
 
 import cloudinary.uploader
 
@@ -77,7 +78,7 @@ class TaskView(APIView):
 
                 return Response(
                     {
-                        "error": "Create team first in Django admin"
+                        "error": "Create team first"
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
@@ -96,6 +97,34 @@ class TaskView(APIView):
 
                 created_by=request.user,
             )
+
+            # SMTP EMAIL
+
+            send_mail(
+
+                subject='New Task Created',
+
+                message=f'''
+Hello {request.user.username},
+
+Your task "{task.title}" has been created successfully.
+
+Priority: {task.priority}
+Status: {task.status}
+Due Date: {task.due_date}
+
+Thank You
+Task Manager Team
+''',
+
+                from_email='venkateswarlu4466@gmail.com',
+
+                recipient_list=['venkateswarlu4466@gmail.com'],
+
+                fail_silently=False,
+            )
+
+            print("EMAIL SENT SUCCESSFULLY")
 
             return Response(
                 {
@@ -331,52 +360,85 @@ class TaskAttachmentView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, task_id):
+def post(self, request):
 
-        try:
+    try:
 
-            task = Task.objects.get(id=task_id)
+        title = request.data.get("title")
 
-        except Task.DoesNotExist:
+        description = request.data.get("description")
 
-            return Response(
-                {
-                    'error': 'Task not found'
-                },
-                status=status.HTTP_404_NOT_FOUND
-            )
+        priority = request.data.get("priority")
 
-        uploaded_file = request.FILES.get('file')
+        due_date = request.data.get("due_date")
 
-        if not uploaded_file:
+        team = Team.objects.first()
+
+        if not team:
 
             return Response(
                 {
-                    'error': 'File required'
+                    "error": "Create team first"
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        upload_result = cloudinary.uploader.upload(
-            uploaded_file,
-            resource_type='auto'
+        task = Task.objects.create(
+
+            title=title,
+
+            description=description,
+
+            priority=priority,
+
+            due_date=due_date,
+
+            team=team,
+
+            created_by=request.user,
         )
 
-        attachment = TaskAttachment.objects.create(
-            task=task,
-            uploaded_by=request.user,
-            file=upload_result['secure_url']
-        )
+        # SMTP EMAIL SEND
 
-        serializer = TaskAttachmentSerializer(
-            attachment
+        send_mail(
+
+            subject='New Task Created',
+
+            message=f'''
+Hello {request.user.username},
+
+Your task "{task.title}" has been created successfully.
+
+Priority: {task.priority}
+Status: {task.status}
+
+Thank You
+Task Manager Team
+''',
+
+            from_email='venkateswarlu4466@gmail.com',
+
+            recipient_list=[request.user.email],
+
+            fail_silently=False,
         )
 
         return Response(
-            serializer.data,
+            {
+                "message": "Task created successfully",
+                "task_id": task.id
+            },
             status=status.HTTP_201_CREATED
         )
-    
+
+    except Exception as e:
+
+        return Response(
+            {
+                "error": str(e)
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
 class TaskDetailView(APIView):
 
     authentication_classes = [JWTAuthentication]
@@ -455,3 +517,4 @@ class TaskDetailView(APIView):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
+        

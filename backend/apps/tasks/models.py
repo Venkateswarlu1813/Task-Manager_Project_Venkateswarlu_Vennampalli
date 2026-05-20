@@ -39,7 +39,7 @@ class Task(models.Model):
         default='todo'
     )
 
-    due_date = models.DateTimeField(
+    due_date = models.DateField(
         blank=True,
         null=True
     )
@@ -65,12 +65,11 @@ class Task(models.Model):
     )
 
     def __str__(self):
-
         return self.title
 
     class Meta:
-
         db_table = 'tasks'
+
 
 class TaskAssignee(models.Model):
 
@@ -88,6 +87,12 @@ class TaskAssignee(models.Model):
     assigned_at = models.DateTimeField(
         auto_now_add=True
     )
+
+    class Meta:
+        db_table = 'task_assignees'
+        unique_together = ('task', 'user')
+
+
 class TaskComment(models.Model):
 
     task = models.ForeignKey(
@@ -108,52 +113,18 @@ class TaskComment(models.Model):
     )
 
     def __str__(self):
-
-        return f"{self.user.email} - {self.task.title}"
+        return self.comment
 
     class Meta:
-
         db_table = 'task_comments'
-
         ordering = ['-created_at']
 
-    def __str__(self):
 
-        return f"{self.user.email} - {self.task.title}"
-
-    class Meta:
-
-        db_table = 'task_assignees'
-
-        unique_together = ('task', 'user')
-    class TaskComment(models.Model):
-
-        task = models.ForeignKey(
-        Task,
-        on_delete=models.CASCADE,
-        related_name='comments'
-    )
-
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE
-    )
-
-    comment = models.TextField()
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    def __str__(self):
-        return self.comment
-    
 class TaskAttachment(models.Model):
 
     task = models.ForeignKey(
         Task,
-        on_delete=models.CASCADE,
-        related_name='attachments'
+        on_delete=models.CASCADE
     )
 
     uploaded_by = models.ForeignKey(
@@ -161,14 +132,11 @@ class TaskAttachment(models.Model):
         on_delete=models.CASCADE
     )
 
-    file = models.FileField(
-        upload_to='task_attachments/'
-    )
+    file = models.URLField()
 
     uploaded_at = models.DateTimeField(
         auto_now_add=True
     )
 
     def __str__(self):
-
-        return self.file.name
+        return f"{self.task.title} Attachment"

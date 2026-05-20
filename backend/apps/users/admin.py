@@ -13,71 +13,35 @@ class CustomUserAdmin(UserAdmin):
         'id',
         'email',
         'username',
-        'role',
+        'is_staff',
         'is_active',
-        'can_create_tasks',
-        'created_at',
     )
-
-    list_filter = (
-        'role',
-        'is_active',
-        'auth_provider',
-    )
-
-    ordering = ('-created_at',)
 
     search_fields = (
         'email',
         'username',
     )
 
+    ordering = (
+        'id',
+    )
+
     fieldsets = (
-        (None, {
-            'fields': (
-                'email',
-                'password',
-            )
-        }),
+        (None, {'fields': ('email', 'password')}),
 
         ('Personal Info', {
-            'fields': (
-                'username',
-            )
+            'fields': ('username',)
         }),
 
         ('Permissions', {
             'fields': (
-                'role',
                 'is_active',
                 'is_staff',
                 'is_superuser',
-                'can_create_tasks',
                 'groups',
                 'user_permissions',
             )
         }),
-
-        ('Authentication', {
-            'fields': (
-                'auth_provider',
-                'google_id',
-            )
-        }),
-
-        ('Important Dates', {
-            'fields': (
-                'last_login',
-                'created_at',
-                'updated_at',
-            )
-        }),
-    )
-
-    readonly_fields = (
-        'created_at',
-        'updated_at',
-        'last_login',
     )
 
     add_fieldsets = (
@@ -88,9 +52,13 @@ class CustomUserAdmin(UserAdmin):
                 'username',
                 'password1',
                 'password2',
-                'role',
-                'is_active',
                 'is_staff',
+                'is_active',
             ),
         }),
+    )
+
+    filter_horizontal = (
+        'groups',
+        'user_permissions',
     )

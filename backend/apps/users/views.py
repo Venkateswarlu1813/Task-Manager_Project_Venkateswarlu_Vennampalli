@@ -1,9 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
+
 
 from .models import User
 from .serializers import UserSerializer
@@ -89,4 +90,17 @@ class ToggleTaskPermissionView(APIView):
         return Response({
             'message': 'Task permission updated',
             'can_create_tasks': user.can_create_tasks
+        })
+
+class CurrentUserView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        return Response({
+            "id": request.user.id,
+            "username": request.user.username,
+            "email": request.user.email,
+            "role": request.user.role,
         })

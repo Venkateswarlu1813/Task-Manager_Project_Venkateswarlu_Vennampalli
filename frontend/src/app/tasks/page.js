@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { useEffect } from "react";
 
-import { useUser } from "@/context/Usercontext";
+import { useUser } from "../../context/Usercontext";
 
 export default function DashboardPage() {
 

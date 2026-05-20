@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import API from "@/services/api";
+import API from "../../services/api";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 

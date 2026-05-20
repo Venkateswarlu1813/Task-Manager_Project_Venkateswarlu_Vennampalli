@@ -1,24 +1,29 @@
+from django.db.models import Q
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .models import TaskAttachment
-from .serializers import TaskAttachmentSerializer
 
-from django.db.models import Q
+import cloudinary.uploader
 
 from .models import (
     Task,
     TaskAssignee,
-    TaskComment
+    TaskComment,
+    TaskAttachment
 )
 
 from .serializers import (
     TaskSerializer,
     TaskAssigneeSerializer,
-    TaskCommentSerializer
+    TaskCommentSerializer,
+    TaskAttachmentSerializer
 )
+
+from apps.users.models import User
+from apps.teams.models import Team
 
 from apps.common.email_service import (
     send_task_assignment_email
@@ -29,9 +34,7 @@ from apps.common.activity_service import (
 )
 
 
-class TaskCreateListView(APIView):
-
-    authentication_classes = [JWTAuthentication]
+class TaskView(APIView):
 
     permission_classes = [IsAuthenticated]
 
@@ -39,42 +42,82 @@ class TaskCreateListView(APIView):
 
         tasks = Task.objects.filter(
             created_by=request.user
-        ).order_by('-created_at')
-
-        serializer = TaskSerializer(
-            tasks,
-            many=True
         )
 
-        return Response(serializer.data)
+        data = []
+
+        for task in tasks:
+
+            data.append({
+                "id": task.id,
+                "title": task.title,
+                "description": task.description,
+                "priority": task.priority,
+                "status": task.status,
+                "due_date": task.due_date,
+            })
+
+        return Response(data)
 
     def post(self, request):
 
-        serializer = TaskSerializer(
-            data=request.data
-        )
+        try:
 
-        if serializer.is_valid():
+            title = request.data.get("title")
 
-            serializer.save(
-                created_by=request.user
+            description = request.data.get("description")
+
+            priority = request.data.get("priority")
+
+            due_date = request.data.get("due_date")
+
+            team = Team.objects.first()
+
+            if not team:
+
+                return Response(
+                    {
+                        "error": "Create team first in Django admin"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            task = Task.objects.create(
+
+                title=title,
+
+                description=description,
+
+                priority=priority,
+
+                due_date=due_date,
+
+                team=team,
+
+                created_by=request.user,
             )
 
             return Response(
-                serializer.data,
+                {
+                    "message": "Task created successfully",
+                    "task_id": task.id
+                },
                 status=status.HTTP_201_CREATED
             )
 
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        except Exception as e:
 
+            return Response(
+                {
+                    "error": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
 
 class AssignTaskView(APIView):
 
     authentication_classes = [JWTAuthentication]
-
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -98,7 +141,7 @@ class AssignTaskView(APIView):
             )
 
             return Response({
-                'message': 'Task assigned successfully and email sent'
+                'message': 'Task assigned successfully'
             })
 
         return Response(
@@ -110,7 +153,6 @@ class AssignTaskView(APIView):
 class UpdateTaskStatusView(APIView):
 
     authentication_classes = [JWTAuthentication]
-
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, task_id):
@@ -121,9 +163,12 @@ class UpdateTaskStatusView(APIView):
 
         except Task.DoesNotExist:
 
-            return Response({
-                'error': 'Task not found'
-            }, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {
+                    'error': 'Task not found'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         status_value = request.data.get('status')
 
@@ -133,9 +178,12 @@ class UpdateTaskStatusView(APIView):
             'completed'
         ]:
 
-            return Response({
-                'error': 'Invalid status'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    'error': 'Invalid status'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         task.status = status_value
 
@@ -155,7 +203,6 @@ class UpdateTaskStatusView(APIView):
 class DashboardStatsView(APIView):
 
     authentication_classes = [JWTAuthentication]
-
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -185,21 +232,17 @@ class DashboardStatsView(APIView):
         return Response({
 
             'total_tasks': total_tasks,
-
             'completed_tasks': completed_tasks,
-
             'pending_tasks': pending_tasks,
-
             'in_progress_tasks': in_progress_tasks,
-
             'high_priority_tasks': high_priority_tasks,
+
         })
 
 
 class TaskSearchFilterView(APIView):
 
     authentication_classes = [JWTAuthentication]
-
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -244,7 +287,6 @@ class TaskSearchFilterView(APIView):
 class TaskCommentView(APIView):
 
     authentication_classes = [JWTAuthentication]
-
     permission_classes = [IsAuthenticated]
 
     def get(self, request, task_id):
@@ -273,11 +315,6 @@ class TaskCommentView(APIView):
                 task_id=task_id
             )
 
-            create_activity_log(
-                user=request.user,
-                action=f"Commented on task ID {task_id}"
-            )
-
             return Response(
                 serializer.data,
                 status=status.HTTP_201_CREATED
@@ -287,10 +324,11 @@ class TaskCommentView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
 class TaskAttachmentView(APIView):
 
     authentication_classes = [JWTAuthentication]
-
     permission_classes = [IsAuthenticated]
 
     def post(self, request, task_id):
@@ -301,27 +339,119 @@ class TaskAttachmentView(APIView):
 
         except Task.DoesNotExist:
 
-            return Response({
-                'error': 'Task not found'
-            }, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = TaskAttachmentSerializer(
-            data=request.data
-        )
-
-        if serializer.is_valid():
-
-            serializer.save(
-                task=task,
-                uploaded_by=request.user
+            return Response(
+                {
+                    'error': 'Task not found'
+                },
+                status=status.HTTP_404_NOT_FOUND
             )
+
+        uploaded_file = request.FILES.get('file')
+
+        if not uploaded_file:
 
             return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED
+                {
+                    'error': 'File required'
+                },
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+        upload_result = cloudinary.uploader.upload(
+            uploaded_file,
+            resource_type='auto'
         )
+
+        attachment = TaskAttachment.objects.create(
+            task=task,
+            uploaded_by=request.user,
+            file=upload_result['secure_url']
+        )
+
+        serializer = TaskAttachmentSerializer(
+            attachment
+        )
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED
+        )
+    
+class TaskDetailView(APIView):
+
+    authentication_classes = [JWTAuthentication]
+
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+
+        try:
+
+            task = Task.objects.get(
+                id=pk,
+                created_by=request.user
+            )
+
+            task.title = request.data.get(
+                "title",
+                task.title
+            )
+
+            task.description = request.data.get(
+                "description",
+                task.description
+            )
+
+            task.priority = request.data.get(
+                "priority",
+                task.priority
+            )
+
+            task.status = request.data.get(
+                "status",
+                task.status
+            )
+
+            task.due_date = request.data.get(
+                "due_date",
+                 task.due_date
+)
+
+            task.save()
+
+            return Response({
+                "message": "Task updated successfully"
+            })
+
+        except Task.DoesNotExist:
+
+            return Response(
+                {
+                    "error": "Task not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+    def delete(self, request, pk):
+
+        try:
+
+            task = Task.objects.get(
+                id=pk,
+                created_by=request.user
+            )
+
+            task.delete()
+
+            return Response({
+                "message": "Task deleted successfully"
+            })
+
+        except Task.DoesNotExist:
+
+            return Response(
+                {
+                    "error": "Task not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )

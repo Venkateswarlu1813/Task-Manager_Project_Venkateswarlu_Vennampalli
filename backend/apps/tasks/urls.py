@@ -1,7 +1,8 @@
 from django.urls import path
 
 from .views import (
-    TaskCreateListView,
+    TaskView,
+    TaskDetailView,
     AssignTaskView,
     UpdateTaskStatusView,
     DashboardStatsView,
@@ -9,12 +10,19 @@ from .views import (
     TaskCommentView,
     TaskAttachmentView
 )
+
 urlpatterns = [
 
     path(
         '',
-        TaskCreateListView.as_view(),
-        name='task-list-create'
+        TaskView.as_view(),
+        name='tasks'
+    ),
+
+    path(
+        '<int:pk>/',
+        TaskDetailView.as_view(),
+        name='task-detail'
     ),
 
     path(
@@ -24,31 +32,33 @@ urlpatterns = [
     ),
 
     path(
-        '<int:task_id>/update-status/',
+        'tasks/<int:task_id>/status/',
         UpdateTaskStatusView.as_view(),
-        name='update-task-status'
+        name='task-status'
     ),
 
     path(
-        'dashboard/',
+        'stats/',
         DashboardStatsView.as_view(),
         name='dashboard-stats'
     ),
 
     path(
-        'search-filter/',
+        'search/',
         TaskSearchFilterView.as_view(),
-        name='task-search-filter'
+        name='task-search'
     ),
 
     path(
-    '<int:task_id>/comments/',
-    TaskCommentView.as_view(),
-    name='task-comments'
+        'comments/<int:task_id>/',
+        TaskCommentView.as_view(),
+        name='task-comments'
     ),
 
     path(
-    '<int:task_id>/attachments/',
-    TaskAttachmentView.as_view()
+        'attachments/<int:task_id>/',
+        TaskAttachmentView.as_view(),
+        name='task-attachments'
     ),
+
 ]

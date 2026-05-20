@@ -1,19 +1,25 @@
 from rest_framework.views import APIView
+
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import (RegisterSerializer,LoginSerializer)
-from google.oauth2 import id_token
-from google.auth.transport import requests
-from rest_framework_simplejwt.tokens import RefreshToken
-from apps.users.models import User
-from rest_framework.views import APIView
-from rest_framework.response import Response
+
 from rest_framework import status
 
+from rest_framework.permissions import IsAuthenticated
+
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from django.contrib.auth import get_user_model
+
+from google.oauth2 import id_token
+
+from google.auth.transport import requests
+
+from .serializers import (
+    RegisterSerializer,
+    LoginSerializer
+)
 
 User = get_user_model()
 
@@ -26,31 +32,31 @@ class RegisterView(APIView):
 
     def post(self, request):
 
-        username = request.data.get('username')
-
-        email = request.data.get('email')
-
-        password = request.data.get('password')
-
-        if User.objects.filter(email=email).exists():
-
-            return Response({
-                'error': 'Email already exists'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password
+        serializer = RegisterSerializer(
+            data=request.data
         )
 
-        return Response({
-            'message': 'User registered successfully',
-            'user_id': user.id,
-            'email': user.email
-        }, status=status.HTTP_201_CREATED)
-    
+        if serializer.is_valid():
+
+            serializer.save()
+
+            return Response({
+
+                'message': 'User registered successfully'
+
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
 class LoginView(APIView):
+
+    authentication_classes = []
+
+    permission_classes = []
 
     def post(self, request):
 
@@ -69,16 +75,19 @@ class LoginView(APIView):
                 'message': 'Login successful',
 
                 'user': {
+
                     'id': user.id,
+
                     'email': user.email,
+
                     'username': user.username,
+
                     'role': user.role,
                 },
 
-                'tokens': {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
-                }
+                'access': str(refresh.access_token),
+
+                'refresh': str(refresh),
 
             }, status=status.HTTP_200_OK)
 
@@ -86,8 +95,13 @@ class LoginView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
-    
+
+
 class GoogleLoginView(APIView):
+
+    authentication_classes = []
+
+    permission_classes = []
 
     def post(self, request):
 
@@ -110,24 +124,17 @@ class GoogleLoginView(APIView):
 
             name = user_info.get('name')
 
-            google_id = user_info.get('sub')
-
             user = User.objects.filter(
                 email=email
             ).first()
 
             if not user:
 
-                user = User.objects.create(
+                user = User.objects.create_user(
                     email=email,
                     username=name,
-                    google_id=google_id,
-                    auth_provider='google'
+                    password=None
                 )
-
-                user.set_unusable_password()
-
-                user.save()
 
             refresh = RefreshToken.for_user(user)
 
@@ -136,31 +143,40 @@ class GoogleLoginView(APIView):
                 'message': 'Google login successful',
 
                 'user': {
+
                     'id': user.id,
+
                     'email': user.email,
+
                     'username': user.username,
+
                     'role': user.role,
                 },
 
-                'tokens': {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
-                }
+                'access': str(refresh.access_token),
+
+                'refresh': str(refresh),
 
             })
 
         except Exception as e:
 
             return Response({
+
                 'error': str(e)
+
             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
 class ProfileView(APIView):
 
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [
+        JWTAuthentication
+    ]
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated
+    ]
 
     def get(self, request):
 
@@ -168,11 +184,5 @@ class ProfileView(APIView):
 
         return Response({
 
-            'id': user.id,
-            'email': user.email,
-            'username': user.username,
-            'role': user.role,
-            'can_create_tasks': user.can_create_tasks,
-            'auth_provider': user.auth_provider,
 
         })

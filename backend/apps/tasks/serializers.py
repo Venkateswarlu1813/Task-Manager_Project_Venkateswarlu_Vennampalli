@@ -1,16 +1,14 @@
 from rest_framework import serializers
-from .models import TaskAttachment
 
 from .models import (
     Task,
     TaskAssignee,
-    TaskComment
+    TaskComment,
+    TaskAttachment
 )
 
 
-class TaskSerializer(
-    serializers.ModelSerializer
-):
+class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
 
@@ -22,10 +20,7 @@ class TaskSerializer(
             'created_by',
         )
 
-
-class TaskAssigneeSerializer(
-    serializers.ModelSerializer
-):
+class TaskAssigneeSerializer(serializers.ModelSerializer):
 
     class Meta:
 
@@ -42,6 +37,7 @@ class TaskCommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+
         model = TaskComment
 
         fields = [
@@ -59,26 +55,15 @@ class TaskCommentSerializer(serializers.ModelSerializer):
             'created_at'
         ]
 
-class TaskAttachmentSerializer(serializers.ModelSerializer):
 
-    uploaded_by = serializers.ReadOnlyField(
-        source='uploaded_by.email'
-    )
+class TaskAttachmentSerializer(serializers.ModelSerializer):
 
     class Meta:
 
         model = TaskAttachment
 
-        fields = [
-            'id',
-            'task',
-            'uploaded_by',
-            'file',
-            'uploaded_at'
-        ]
+        fields = '__all__'
 
-        read_only_fields = [
-            'task',
+        read_only_fields = (
             'uploaded_by',
-            'uploaded_at'
-        ]
+        )

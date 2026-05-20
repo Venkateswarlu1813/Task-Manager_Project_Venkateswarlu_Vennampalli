@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 
 import { GoogleLogin } from "@react-oauth/google";
 
-import API from "@/services/api";
+import API from "../../services/api";
 
 export default function LoginPage() {
 

@@ -415,9 +415,123 @@ This system improves task organization, productivity, and monitoring while follo
 
 ---
 
+# Installation and Setup Guide
+
+## Backend Setup
+
+### Step 1: Navigate to Backend Folder
+
+```bash
+cd backend
+```
+
+### Step 2: Create Virtual Environment
+
+```bash
+python -m venv venv
+```
+
+### Step 3: Activate Virtual Environment
+
+#### Windows
+
+```bash
+venv\Scripts\activate
+```
+
+#### Mac/Linux
+
+```bash
+source venv/bin/activate
+```
+
+### Step 4: Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Step 5: Run Migrations
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### Step 6: Start Backend Server
+
+```bash
+python manage.py runserver
+```
+
+Backend runs on:
+
+```text
+http://127.0.0.1:8000
+```
+
+---
+
+# Frontend Setup
+
+### Step 1: Navigate to Frontend Folder
+
+```bash
+cd frontend
+```
+
+### Step 2: Install Node Modules
+
+```bash
+npm install
+```
+
+### Step 3: Start Frontend Server
+
+```bash
+npm run dev
+```
+
+Frontend runs on:
+
+```text
+http://localhost:3000
+```
+
+---
+
+# Localhost Execution
+
+To run the complete project locally:
+
+## Start Backend
+
+```bash
+cd backend
+python manage.py runserver
+```
+
+## Start Frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+Then open:
+
+```text
+http://localhost:3000
+```
+
+in the browser.
+
+The frontend communicates with the Django backend APIs running on localhost.
+
+---
+
 # Developed By
 
 Venkateswarlu Vennampalli
 
-B.Tech CSE
-Amrita Vishwa Vidyapeetham, Amaravati
+

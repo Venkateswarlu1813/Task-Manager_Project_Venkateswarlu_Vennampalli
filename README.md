@@ -4,16 +4,6 @@ A modern Full Stack Task Management System built using **Next.js**, **Django RES
 
 ---
 
-# 🚀 Live Demo
-
-## Frontend
-Frontend Deployment Link
-
-## Backend
-Backend API Deployment Link
-
----
-
 # 📌 Features
 
 ## 🔐 Authentication

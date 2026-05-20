@@ -150,10 +150,3 @@ Modern Responsive UI
 👨‍💻 Developed By
 Venkateswarlu Vennampalli
 
-📌 Future Enhancements
-Team Collaboration
-File Attachments
-Task Comments
-Email Notifications
-Drag & Drop Kanban Board
-Real-time Updates

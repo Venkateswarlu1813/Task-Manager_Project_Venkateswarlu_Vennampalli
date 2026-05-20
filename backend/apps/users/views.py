@@ -3,6 +3,22 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .models import User
+from .serializers import UserSerializer
+
+
+class AllUsersView(APIView):
+
+    def get(self, request):
+
+        users = User.objects.all()
+
+        serializer = UserSerializer(
+            users,
+            many=True
+        )
+
+        return Response(serializer.data)
 
 
 
@@ -104,3 +120,16 @@ class CurrentUserView(APIView):
             "email": request.user.email,
             "role": request.user.role,
         })
+
+class AllUsersView(APIView):
+
+    def get(self, request):
+
+        users = User.objects.all()
+
+        serializer = UserSerializer(
+            users,
+            many=True
+        )
+
+        return Response(serializer.data)

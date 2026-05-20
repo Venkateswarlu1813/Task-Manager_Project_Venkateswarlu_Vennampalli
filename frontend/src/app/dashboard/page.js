@@ -284,6 +284,13 @@ export default function DashboardPage() {
 
       {/* HEADER */}
 
+      <button
+        onClick={() => router.push("/admin-dashboard")}
+        className="bg-blue-600 text-white px-5 py-3 rounded-xl"
+      >
+        Admin Panel
+      </button>
+
       <div className="bg-white rounded-3xl shadow-md px-10 py-6 flex justify-between items-center mb-10">
 
         <div>

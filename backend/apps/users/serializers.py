@@ -13,7 +13,4 @@ class UserSerializer(serializers.ModelSerializer):
             'email',
             'username',
             'role',
-            'is_active',
-            'can_create_tasks',
-            'created_at',
         )

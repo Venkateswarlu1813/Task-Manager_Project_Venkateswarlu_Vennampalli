@@ -50,6 +50,11 @@ export default function LoginPage() {
         { expires: 3 }
       );
 
+      localStorage.setItem(
+        "access",
+        response.data.access
+      );
+
       Cookies.set(
         "refresh",
         response.data.refresh,
@@ -62,9 +67,21 @@ export default function LoginPage() {
         { expires: 3 }
       );
 
+      localStorage.setItem(
+        "user",
+        JSON.stringify(response.data.user)
+      );
+
       toast.success("Login Successful");
 
-      router.push("/dashboard");
+      if (response.data.user.role === "admin") {
+
+        router.push("/admin-dashboard");
+
+      } else {
+
+        router.push("/dashboard");
+      }
 
     } catch (error) {
 
@@ -109,11 +126,28 @@ export default function LoginPage() {
         { expires: 3 }
       );
 
+      localStorage.setItem(
+        "user",
+        JSON.stringify(response.data.user)
+      );
+
+      localStorage.setItem(
+        "access",
+        response.data.access
+      );
+
       toast.success(
         "Google Login Successful"
       );
 
-      router.push("/dashboard");
+      if (response.data.user.role === "admin") {
+
+        router.push("/admin-dashboard");
+
+      } else {
+
+        router.push("/dashboard");
+      }
 
     } catch (error) {
 

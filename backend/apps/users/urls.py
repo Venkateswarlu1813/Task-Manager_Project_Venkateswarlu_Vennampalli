@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    AllUsersView,
     CurrentUserView,
     UserListView,
     ToggleUserActiveView,
@@ -31,4 +32,10 @@ urlpatterns = [
     'me/',
     CurrentUserView.as_view()
     ),
+
+    path(
+    "all-users/",
+    AllUsersView.as_view(),
+    name="all-users"
+),
 ]

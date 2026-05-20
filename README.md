@@ -92,4 +92,68 @@ Task_Manager_Project/
 │   ├── public/
 │   ├── src/
 │   ├── package.json
-│   └── next.config.mjs
+│   ├── package-lock.json
+│   ├── next.config.mjs
+│   ├── postcss.config.mjs
+│   ├── eslint.config.mjs
+│   └── jsconfig.json
+│
+├── .gitignore
+└── README.md
+
+⚙️ Installation & Setup
+Backend Setup
+cd backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+
+Frontend Setup
+cd frontend
+npm install
+npm run dev
+
+🔑 Environment Variables
+Frontend (.env.local)
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+Backend (.env)
+SECRET_KEY=YOUR_SECRET_KEY
+DEBUG=True
+
+📡 API Endpoints
+Authentication
+POST /api/auth/register/
+POST /api/auth/login/
+POST /api/auth/google/
+
+Tasks
+GET /api/tasks/
+POST /api/tasks/
+PUT /api/tasks/{id}/
+DELETE /api/tasks/{id}/
+PATCH /api/tasks/status/{task_id}/
+
+✨ Advanced Features Added
+Google OAuth Authentication
+Task Completion Toggle
+Due Date Management
+Task Editing
+Task Filtering
+Dynamic Dashboard Stats
+Toast Notifications
+Protected Routes
+Modern Responsive UI
+
+👨‍💻 Developed By
+Venkateswarlu Vennampalli
+
+📌 Future Enhancements
+Team Collaboration
+File Attachments
+Task Comments
+Email Notifications
+Drag & Drop Kanban Board
+Real-time Updates

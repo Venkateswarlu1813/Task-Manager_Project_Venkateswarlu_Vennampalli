@@ -6,6 +6,17 @@ import API from "../services/api";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 
+import {
+  FaTasks,
+  FaCheckCircle,
+  FaClock,
+  FaFlag,
+  FaUserCircle,
+  FaPlusCircle,
+  FaEdit,
+  FaTrash,
+} from "react-icons/fa";
+
 export default function Dashboard() {
 
   const router = useRouter();
@@ -281,108 +292,195 @@ export default function Dashboard() {
     >
 
       <Toaster />
+{/* ADMIN BUTTON */}
 
-      {/* HEADER */}
+<button
+  onClick={() => {
 
-      <button
-        onClick={() => router.push("/admin-dashboard")}
-        className="bg-blue-600 text-white px-5 py-3 rounded-xl"
-      >
-        Admin Panel
-      </button>
+    const adminPassword = prompt(
+      "Enter Admin Password"
+    );
 
-      <div className="bg-white rounded-3xl shadow-md px-10 py-6 flex justify-between items-center mb-10">
+    if (adminPassword === "admin@1812") {
 
-        <div>
+      router.push("/admin-dashboard");
 
-          <h1 className="text-5xl font-bold text-[#172554]">
-            Task Manager
-          </h1>
+    } else {
 
-          <p className="text-gray-500 text-lg mt-2">
-            Organize your tasks efficiently
-          </p>
+      alert("Invalid Admin Credentials");
+    }
 
-        </div>
+  }}
+  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl mb-6"
+>
 
-        <div className="flex items-center gap-4">
+  Admin Panel
 
-          <button
-            onClick={() =>
-              setDarkMode(!darkMode)
-            }
-            className="bg-black hover:bg-gray-800 text-white px-6 py-4 rounded-2xl font-bold"
-          >
+</button>
 
-            {darkMode ? "Light" : "Dark"}
+{/* HEADER */}
 
-          </button>
+<div className="bg-white rounded-3xl shadow-md px-10 py-6 flex justify-between items-center mb-10">
 
-          <button
-            onClick={logout}
-            className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-2xl font-bold"
-          >
-            Logout
-          </button>
+  {/* LEFT */}
 
-        </div>
+  <div className="flex items-center gap-5">
 
-      </div>
+    <div className="bg-blue-100 p-5 rounded-2xl">
 
-      {/* STATS */}
+      <FaTasks className="text-5xl text-blue-600" />
 
-      <div className="grid md:grid-cols-4 gap-6 mb-10">
+    </div>
 
-        <div className="bg-white rounded-3xl p-8 shadow-md border border-blue-200">
+    <div>
 
-          <h2 className="text-5xl font-bold text-blue-600">
-            {tasks.length}
-          </h2>
+      <h1 className="text-5xl font-bold text-[#172554]">
+        Task Manager
+      </h1>
 
-          <p className="text-xl mt-3">
-            Total Tasks
-          </p>
+      <p className="text-gray-500 text-lg mt-2">
+        Organize your tasks efficiently
+      </p>
 
-        </div>
+    </div>
 
-        <div className="bg-white rounded-3xl p-8 shadow-md border border-green-200">
+  </div>
 
-          <h2 className="text-5xl font-bold text-green-600">
-            {completedTasks}
-          </h2>
+  {/* RIGHT */}
 
-          <p className="text-xl mt-3">
-            Completed
-          </p>
+  <div className="flex items-center gap-5">
 
-        </div>
+    <div className="text-right">
 
-        <div className="bg-white rounded-3xl p-8 shadow-md border border-yellow-200">
+      <p className="text-gray-400 text-sm">
+        Welcome,
+      </p>
 
-          <h2 className="text-5xl font-bold text-yellow-500">
-            {pendingTasks}
-          </h2>
+      <h2 className="text-2xl font-bold text-[#172554]">
 
-          <p className="text-xl mt-3">
-            Pending
-          </p>
+        {
+          JSON.parse(
+            localStorage.getItem("user")
+          )?.username
+        }
 
-        </div>
+      </h2>
 
-        <div className="bg-white rounded-3xl p-8 shadow-md border border-red-200">
+    </div>
 
-          <h2 className="text-5xl font-bold text-red-500">
-            {highPriorityTasks}
-          </h2>
+    <div className="bg-blue-100 p-3 rounded-full">
 
-          <p className="text-xl mt-3">
-            High Priority
-          </p>
+      <FaUserCircle className="text-5xl text-blue-600" />
 
-        </div>
+    </div>
 
-      </div>
+    <button
+      onClick={() =>
+        setDarkMode(!darkMode)
+      }
+      className="bg-black hover:bg-gray-800 text-white px-6 py-4 rounded-2xl font-bold"
+    >
 
+      {darkMode ? "Light" : "Dark"}
+
+    </button>
+
+    <button
+      onClick={logout}
+      className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-2xl font-bold"
+    >
+      Logout
+    </button>
+
+  </div>
+
+</div>
+
+{/* STATS */}
+
+<div className="grid md:grid-cols-4 gap-6 mb-10">
+
+  {/* TOTAL */}
+
+  <div className="bg-white rounded-3xl p-8 shadow-md border border-blue-200">
+
+    <div className="bg-blue-100 w-20 h-20 flex items-center justify-center rounded-full mb-5">
+
+      <FaTasks className="text-4xl text-blue-600" />
+
+    </div>
+
+    <h2 className="text-5xl font-bold text-blue-600">
+      {tasks.length}
+    </h2>
+
+    <p className="text-xl mt-3">
+      Total Tasks
+    </p>
+
+  </div>
+
+  {/* COMPLETED */}
+
+  <div className="bg-white rounded-3xl p-8 shadow-md border border-green-200">
+
+    <div className="bg-green-100 w-20 h-20 flex items-center justify-center rounded-full mb-5">
+
+      <FaCheckCircle className="text-4xl text-green-600" />
+
+    </div>
+
+    <h2 className="text-5xl font-bold text-green-600">
+      {completedTasks}
+    </h2>
+
+    <p className="text-xl mt-3">
+      Completed
+    </p>
+
+  </div>
+
+  {/* PENDING */}
+
+  <div className="bg-white rounded-3xl p-8 shadow-md border border-yellow-200">
+
+    <div className="bg-yellow-100 w-20 h-20 flex items-center justify-center rounded-full mb-5">
+
+      <FaClock className="text-4xl text-yellow-500" />
+
+    </div>
+
+    <h2 className="text-5xl font-bold text-yellow-500">
+      {pendingTasks}
+    </h2>
+
+    <p className="text-xl mt-3">
+      Pending
+    </p>
+
+  </div>
+
+  {/* HIGH PRIORITY */}
+
+  <div className="bg-white rounded-3xl p-8 shadow-md border border-red-200">
+
+    <div className="bg-red-100 w-20 h-20 flex items-center justify-center rounded-full mb-5">
+
+      <FaFlag className="text-4xl text-red-500" />
+
+    </div>
+
+    <h2 className="text-5xl font-bold text-red-500">
+      {highPriorityTasks}
+    </h2>
+
+    <p className="text-xl mt-3">
+      High Priority
+    </p>
+
+  </div>
+
+</div>
       {/* SEARCH FILTER */}
 
       <div className="grid md:grid-cols-2 gap-5 mb-10">

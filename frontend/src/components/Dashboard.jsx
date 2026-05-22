@@ -294,30 +294,6 @@ export default function Dashboard() {
       <Toaster />
 {/* ADMIN BUTTON */}
 
-<button
-  onClick={() => {
-
-    const adminPassword = prompt(
-      "Enter Admin Password"
-    );
-
-    if (adminPassword === "admin@1812") {
-
-      router.push("/admin-dashboard");
-
-    } else {
-
-      alert("Invalid Admin Credentials");
-    }
-
-  }}
-  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl mb-6"
->
-
-  Admin Panel
-
-</button>
-
 {/* HEADER */}
 
 <div className="bg-white rounded-3xl shadow-md px-10 py-6 flex justify-between items-center mb-10">

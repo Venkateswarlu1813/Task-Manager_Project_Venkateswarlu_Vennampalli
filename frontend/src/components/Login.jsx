@@ -80,14 +80,17 @@ export default function Login() {
 
       toast.success("Login Successful");
 
-      if (response.data.user.role === "admin") {
+      if (
+  response.data.user.email ===
+  "admin1813@gmail.com"
+) {
 
-        router.push("/admin-dashboard");
+  router.push("/admin-dashboard");
 
-      } else {
+} else {
 
-        router.push("/dashboard");
-      }
+  router.push("/dashboard");
+}
 
     } catch (error) {
 
